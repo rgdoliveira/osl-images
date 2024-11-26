@@ -1,0 +1,26 @@
+name: "CI :: PR Check"
+
+on:
+  pull_request:
+    branches: ["**"]
+    types: [opened, reopened, ready_for_review, synchronize]
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: 17
+
+      - name: Build apps-maven-builder
+        shell: bash
+        run: |
+          settings_xml=$(realpath .github/supporting_files/pr_check_settings.xml)
+          export MAVEN_OPTIONS="-s ${settings_xml}"
+          mvn -f apps-maven-builder clean install
